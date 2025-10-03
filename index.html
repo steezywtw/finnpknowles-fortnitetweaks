@@ -1,239 +1,38 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Mini Basketball Game</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <h1>🏀 Drag & Shoot Basketball</h1>
-  <canvas id="gameCanvas" width="800" height="500"></canvas>
-  <p>Drag the ball backward and release to shoot!</p>
-  <script src="script.js"></script>
-</body>
-</html>
-style.css
-body {
-  text-align: center;
-  background: #87CEEB;
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-}
+Having the best gameplay and being able to have low ping can lead to good results in tokens.  Having better fps and everything is better to make money. 
 
-h1 {
-  margin: 20px 0 5px;
-  color: #333;
-}
+🔧 Best Fortnite Tweaks (2025) 🖥️ 1. In-Game Settings Tweaks (PC & Console) Graphics Settings (for Performance/FPS) Display Mode: Fullscreen Resolution: Native or stretch (e.g., 1750x1080) Frame Rate Limit: Match your monitor refresh rate (e.g., 240Hz monitor → 240 FPS) 3D Resolution: 100% View Distance: Medium or Far (for awareness) Textures: Low (unless on a high-end GPU) Shadows: OFF ✅ Anti-Aliasing: OFF Effects: Low Post Processing: Low V-Sync: OFF Motion Blur: OFF DLSS (if available): ON for high-end systems 🧠 2. Fortnite Config Tweaks (PC Only) Edit GameUserSettings.ini Location: C:\Users<YourName>\AppData\Local\FortniteGame\Saved\Config\WindowsClient\GameUserSettings.ini Change/Add: bDisableMouseAcceleration=True bUseVSync=False FrameRateLimit=240.000000 ✅ Tip: Set the file to read-only after editing to lock settings. ⌨️ 3. Low Input Delay Tweaks Disable Background Apps (e.g., Discord overlay, GeForce Experience overlay) Enable Game Mode in Windows settings Disable Xbox Game Bar Use Wired Controller or Wired Mouse/Keyboard (avoid wireless for lowest latency) Turn off High Precision Mouse Input in Fortnite if enabled 🧼 4. Clean Windows Optimization (PC) Use Debloat scripts (like AtlasOS or BloatyNosy) to clean Windows Disable: Startup apps Cortana Xbox services Animations/transparency effects Keep GPU drivers up to date (NVIDIA / AMD) Use NVIDIA Control Panel: Power Management Mode: Prefer Maximum Performance Low Latency Mode: Ultra Threaded Optimization: ON 🌍 5. Network Tweaks (Lower Ping) Use Ethernet, not Wi-Fi Set DNS to: 1.1.1.1 (Cloudflare) 8.8.8.8 (Google) Use a gaming VPN (like ExitLag or WTFast) if routing issues Limit background downloads/streams 🧪 Bonus: Stretch Resolution Many competitive players use a stretched res (e.g., 1750x1080) to: Increase character model size Boost FPS ⚠️ Be aware Epic Games may restrict UI support for stretched res in future patches. background-image: url('https://wallpapercave.com/wp/wp7072742.jpg'); /* Fortnite background */ background-size: cover; background-position: center; background-repeat: no-repeat; font-family: 'Segoe UI', sans-serif; color: white; text-shadow: 1px 1px 2px black; margin: 0; padding: 20px; } 
 
-canvas {
-  background: #f4f4f4;
-  border: 3px solid #333;
-  border-radius: 10px;
-  display: block;
-  margin: 0 auto;
-}
+.content { background-color: rgba(0, 0, 0, 0.65); /* dark overlay for readability */ padding: 20px; border-radius: 10px; max-width: 900px; margin: auto; } ✅ Option B: Fortnite Gradient Background 
 
-p {
-  color: #222;
-  font-size: 16px;
-}
-script.js
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
+💻 Example HTML Structure With Background Here’s the full structure with Option A (image background):  
 
-const ballStart = { x: 150, y: 400 };
-let ball = { ...ballStart, radius: 20, dx: 0, dy: 0, moving: false };
-const gravity = 0.6;
+Best Fortnite Tweaks (2025) 
 
-const hoop = { x: 650, y: 150, width: 80, height: 15 };
-let hoopDirection = 1; // moves left/right
+🖥️ In-Game Settings 
 
-let dragging = false;
-let dragStart = null;
+Display Mode: Fullscreen 
 
-let score = 0;
+Resolution: 1920x1080 or stretched 
 
-// Draw the hoop (moving left and right)
-function drawHoop() {
-  ctx.fillStyle = "red";
-  ctx.fillRect(hoop.x, hoop.y, hoop.width, hoop.height);
-  // hoop rim shadow
-  ctx.strokeStyle = "#800000";
-  ctx.lineWidth = 4;
-  ctx.beginPath();
-  ctx.moveTo(hoop.x, hoop.y + hoop.height/2);
-  ctx.lineTo(hoop.x + hoop.width, hoop.y + hoop.height/2);
-  ctx.stroke();
-}
+Shadows: OFF ✅ 
 
-// Draw the basketball
-function drawBall() {
-  ctx.beginPath();
-  ctx.fillStyle = "orange";
-  ctx.strokeStyle = "black";
-  ctx.lineWidth = 2;
-  ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.stroke();
-  ctx.closePath();
-}
+<h2>🧠 Config Tweaks</h2> 
+<p>Edit <code>GameUserSettings.ini</code> and add:</p> 
+<pre><code> 
+  
+bDisableMouseAcceleration=True bUseVSync=False FrameRateLimit=240.000000  
 
-// Draw score text
-function drawScore() {
-  ctx.fillStyle = "#222";
-  ctx.font = "24px Arial";
-  ctx.fillText("Score: " + score, 20, 40);
-}
-
-// Update hoop position for movement
-function updateHoop() {
-  hoop.x += hoopDirection * 3;
-  if (hoop.x <= 400 || hoop.x + hoop.width >= canvas.width - 10) {
-    hoopDirection *= -1;
-  }
-}
-
-// Reset ball to start position
-function resetBall() {
-  ball.x = ballStart.x;
-  ball.y = ballStart.y;
-  ball.dx = 0;
-  ball.dy = 0;
-  ball.moving = false;
-}
-
-// Check if ball goes through the hoop
-function checkScore() {
-  if (
-    ball.x > hoop.x &&
-    ball.x < hoop.x + hoop.width &&
-    ball.y + ball.radius > hoop.y &&
-    ball.y - ball.radius < hoop.y + hoop.height
-  ) {
-    score++;
-    resetBall();
-  }
-}
-
-// Main game loop
-function gameLoop() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  updateHoop();
-
-  if (ball.moving) {
-    ball.x += ball.dx;
-    ball.y += ball.dy;
-    ball.dy += gravity;
-
-    // Check ground collision
-    if (ball.y + ball.radius > canvas.height) {
-      resetBall();
-    }
-
-    checkScore();
-  }
-
-  drawHoop();
-  drawBall();
-  drawScore();
-
-  // If dragging, draw aim line
-  if (dragging && dragStart) {
-    ctx.strokeStyle = "black";
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(ball.x, ball.y);
-    ctx.lineTo(dragStart.x, dragStart.y);
-    ctx.stroke();
-  }
-
-  requestAnimationFrame(gameLoop);
-}
-
-// Mouse and touch event handlers for drag & shoot
-canvas.addEventListener("mousedown", (e) => {
-  if (!ball.moving) {
-    const rect = canvas.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-    // Check if click inside ball radius
-    const dist = Math.hypot(mouseX - ball.x, mouseY - ball.y);
-    if (dist <= ball.radius) {
-      dragging = true;
-      dragStart = { x: mouseX, y: mouseY };
-    }
-  }
-});
-
-canvas.addEventListener("mousemove", (e) => {
-  if (dragging) {
-    const rect = canvas.getBoundingClientRect();
-    dragStart.x = e.clientX - rect.left;
-    dragStart.y = e.clientY - rect.top;
-  }
-});
-
-canvas.addEventListener("mouseup", (e) => {
-  if (dragging) {
-    const rect = canvas.getBoundingClientRect();
-    const releaseX = e.clientX - rect.left;
-    const releaseY = e.clientY - rect.top;
-
-    // Calculate shooting velocity based on drag vector
-    const dx = (ball.x - releaseX) / 8;
-    const dy = (ball.y - releaseY) / 8;
-
-    ball.dx = dx;
-    ball.dy = dy;
-    ball.moving = true;
-
-    dragging = false;
-    dragStart = null;
-  }
-});
-
-// Touch events for mobile support
-canvas.addEventListener("touchstart", (e) => {
-  if (!ball.moving) {
-    const rect = canvas.getBoundingClientRect();
-    const touch = e.touches[0];
-    const touchX = touch.clientX - rect.left;
-    const touchY = touch.clientY - rect.top;
-    const dist = Math.hypot(touchX - ball.x, touchY - ball.y);
-    if (dist <= ball.radius) {
-      dragging = true;
-      dragStart = { x: touchX, y: touchY };
-    }
-  }
-});
-
-canvas.addEventListener("touchmove", (e) => {
-  if (dragging) {
-    const rect = canvas.getBoundingClientRect();
-    const touch = e.touches[0];
-    dragStart.x = touch.clientX - rect.left;
-    dragStart.y = touch.clientY - rect.top;
-  }
-});
-
-canvas.addEventListener("touchend", (e) => {
-  if (dragging) {
-    dragging = false;
-
-    // On touchend, use the last dragStart as release point
-    const dx = (ball.x - dragStart.x) / 8;
-    const dy = (ball.y - dragStart.y) / 8;
-
-    ball.dx = dx;
-    ball.dy = dy;
-    ball.moving = true;
-
-    dragStart = null;
-  }
-});
-
-resetBall();
-gameLoop();
+<h2>⌨️ Low Input Delay Tweaks</h2> 
+<ul> 
+  <li>Disable overlays (e.g. Discord, GeForce)</li> 
+  <li>Use wired peripherals</li> 
+  <li>Game Mode ON</li> 
+</ul> 
+ 
+<h2>🌍 Network Tweaks</h2> 
+<ul> 
+  <li>Use Ethernet</li> 
+  <li>DNS: 1.1.1.1 / 8.8.8.8</li> 
+  <li>Optional: Use ExitLag or WTFast</li> 
+</ul> 
+ 
