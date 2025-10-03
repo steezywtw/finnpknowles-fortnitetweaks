@@ -2,134 +2,238 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Basketball Game</title>
-  <link rel="stylesheet" href="style.css"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mini Basketball Game</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>🏀 Mini Basketball Game</h1>
+  <h1>🏀 Drag & Shoot Basketball</h1>
   <canvas id="gameCanvas" width="800" height="500"></canvas>
-  <p>Drag and release to shoot the ball!</p>
+  <p>Drag the ball backward and release to shoot!</p>
   <script src="script.js"></script>
 </body>
 </html>
+style.css
 body {
   text-align: center;
-  background: #f4f4f4;
-  font-family: sans-serif;
+  background: #87CEEB;
+  font-family: Arial, sans-serif;
   margin: 0;
   padding: 0;
 }
+
 h1 {
-  margin-top: 20px;
-}
-canvas {
-  background: #87CEEB;
-  border: 2px solid #333;
-  margin-top: 20px;
-}
-p {
-  font-size: 16px;
+  margin: 20px 0 5px;
   color: #333;
 }
 
+canvas {
+  background: #f4f4f4;
+  border: 3px solid #333;
+  border-radius: 10px;
+  display: block;
+  margin: 0 auto;
+}
+
+p {
+  color: #222;
+  font-size: 16px;
+}
+script.js
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-let ball = { x: 100, y: 400, radius: 15, dx: 0, dy: 0, isMoving: false };
-const hoop = { x: 700, y: 150, width: 60, height: 10 };
-let gravity = 0.5;
-let score = 0;
+const ballStart = { x: 150, y: 400 };
+let ball = { ...ballStart, radius: 20, dx: 0, dy: 0, moving: false };
+const gravity = 0.6;
+
+const hoop = { x: 650, y: 150, width: 80, height: 15 };
+let hoopDirection = 1; // moves left/right
+
 let dragging = false;
 let dragStart = null;
 
-// Sound effects
-const swishSound = new Audio("https://www.soundjay.com/button/beep-07.wav");
-const missSound = new Audio("https://www.soundjay.com/button/beep-10.wav");
+let score = 0;
 
-// Draw hoop (moving left/right)
-let hoopDirection = 1;
+// Draw the hoop (moving left and right)
 function drawHoop() {
   ctx.fillStyle = "red";
   ctx.fillRect(hoop.x, hoop.y, hoop.width, hoop.height);
+  // hoop rim shadow
+  ctx.strokeStyle = "#800000";
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(hoop.x, hoop.y + hoop.height/2);
+  ctx.lineTo(hoop.x + hoop.width, hoop.y + hoop.height/2);
+  ctx.stroke();
 }
 
-// Draw ball
+// Draw the basketball
 function drawBall() {
   ctx.beginPath();
-  ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
   ctx.fillStyle = "orange";
+  ctx.strokeStyle = "black";
+  ctx.lineWidth = 2;
+  ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
   ctx.fill();
+  ctx.stroke();
   ctx.closePath();
 }
 
-// Draw score
+// Draw score text
 function drawScore() {
-  ctx.fillStyle = "black";
-  ctx.font = "20px Arial";
-  ctx.fillText("Score: " + score, 20, 30);
+  ctx.fillStyle = "#222";
+  ctx.font = "24px Arial";
+  ctx.fillText("Score: " + score, 20, 40);
 }
 
-// Update game
-function update() {
-  if (ball.isMoving) {
+// Update hoop position for movement
+function updateHoop() {
+  hoop.x += hoopDirection * 3;
+  if (hoop.x <= 400 || hoop.x + hoop.width >= canvas.width - 10) {
+    hoopDirection *= -1;
+  }
+}
+
+// Reset ball to start position
+function resetBall() {
+  ball.x = ballStart.x;
+  ball.y = ballStart.y;
+  ball.dx = 0;
+  ball.dy = 0;
+  ball.moving = false;
+}
+
+// Check if ball goes through the hoop
+function checkScore() {
+  if (
+    ball.x > hoop.x &&
+    ball.x < hoop.x + hoop.width &&
+    ball.y + ball.radius > hoop.y &&
+    ball.y - ball.radius < hoop.y + hoop.height
+  ) {
+    score++;
+    resetBall();
+  }
+}
+
+// Main game loop
+function gameLoop() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  updateHoop();
+
+  if (ball.moving) {
     ball.x += ball.dx;
     ball.y += ball.dy;
     ball.dy += gravity;
 
-    if (
-      ball.x > hoop.x &&
-      ball.x < hoop.x + hoop.width &&
-      ball.y > hoop.y &&
-      ball.y < hoop.y + hoop.height
-    ) {
-      score++;
-      swishSound.play();
+    // Check ground collision
+    if (ball.y + ball.radius > canvas.height) {
       resetBall();
     }
 
-    if (ball.y > canvas.height || ball.x > canvas.width || ball.x < 0) {
-      missSound.play();
-      resetBall();
-    }
+    checkScore();
   }
 
-  // Move hoop
-  hoop.x += hoopDirection * 2;
-  if (hoop.x <= 0 || hoop.x + hoop.width >= canvas.width) {
-    hoopDirection *= -1;
-  }
-
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawHoop();
   drawBall();
   drawScore();
 
-  requestAnimationFrame(update);
+  // If dragging, draw aim line
+  if (dragging && dragStart) {
+    ctx.strokeStyle = "black";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(ball.x, ball.y);
+    ctx.lineTo(dragStart.x, dragStart.y);
+    ctx.stroke();
+  }
+
+  requestAnimationFrame(gameLoop);
 }
 
-function resetBall() {
-  ball = { x: 100, y: 400, radius: 15, dx: 0, dy: 0, isMoving: false };
-}
-
+// Mouse and touch event handlers for drag & shoot
 canvas.addEventListener("mousedown", (e) => {
-  if (!ball.isMoving) {
-    dragging = true;
-    dragStart = { x: e.offsetX, y: e.offsetY };
+  if (!ball.moving) {
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    // Check if click inside ball radius
+    const dist = Math.hypot(mouseX - ball.x, mouseY - ball.y);
+    if (dist <= ball.radius) {
+      dragging = true;
+      dragStart = { x: mouseX, y: mouseY };
+    }
+  }
+});
+
+canvas.addEventListener("mousemove", (e) => {
+  if (dragging) {
+    const rect = canvas.getBoundingClientRect();
+    dragStart.x = e.clientX - rect.left;
+    dragStart.y = e.clientY - rect.top;
   }
 });
 
 canvas.addEventListener("mouseup", (e) => {
-  if (dragging && !ball.isMoving) {
-    const dragEnd = { x: e.offsetX, y: e.offsetY };
-    const powerX = (dragStart.x - dragEnd.x) / 10;
-    const powerY = (dragStart.y - dragEnd.y) / 10;
-    ball.dx = -powerX;
-    ball.dy = -powerY;
-    ball.isMoving = true;
+  if (dragging) {
+    const rect = canvas.getBoundingClientRect();
+    const releaseX = e.clientX - rect.left;
+    const releaseY = e.clientY - rect.top;
+
+    // Calculate shooting velocity based on drag vector
+    const dx = (ball.x - releaseX) / 8;
+    const dy = (ball.y - releaseY) / 8;
+
+    ball.dx = dx;
+    ball.dy = dy;
+    ball.moving = true;
+
     dragging = false;
+    dragStart = null;
   }
 });
 
-update();
+// Touch events for mobile support
+canvas.addEventListener("touchstart", (e) => {
+  if (!ball.moving) {
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    const touchX = touch.clientX - rect.left;
+    const touchY = touch.clientY - rect.top;
+    const dist = Math.hypot(touchX - ball.x, touchY - ball.y);
+    if (dist <= ball.radius) {
+      dragging = true;
+      dragStart = { x: touchX, y: touchY };
+    }
+  }
+});
 
+canvas.addEventListener("touchmove", (e) => {
+  if (dragging) {
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    dragStart.x = touch.clientX - rect.left;
+    dragStart.y = touch.clientY - rect.top;
+  }
+});
+
+canvas.addEventListener("touchend", (e) => {
+  if (dragging) {
+    dragging = false;
+
+    // On touchend, use the last dragStart as release point
+    const dx = (ball.x - dragStart.x) / 8;
+    const dy = (ball.y - dragStart.y) / 8;
+
+    ball.dx = dx;
+    ball.dy = dy;
+    ball.moving = true;
+
+    dragStart = null;
+  }
+});
+
+resetBall();
+gameLoop();
